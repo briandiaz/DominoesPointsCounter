@@ -3,13 +3,13 @@ import cv2
 import numpy as np
 from image import Image
 
-min_radius = 7
+min_radius = 8
 max_radius = 20
 
 class Processing:
     def __init__(self, image):
         self.image = image
-        self.image_data = image.load()
+        self.image_data = cv2.resize(image.load(), (600, 400))
 
     # Save a Image to local path
     def save_image(self, image, path):
@@ -17,7 +17,7 @@ class Processing:
 
     # Set Gray Scale image for a better algorithm efficiency
     def gray_scale(self):
-        return cv2.cvtColor(self.image_data, cv2.COLOR_BGR2GRAY)
+        return cv2.cvtColor(self.change_background_colors(self.image_data), cv2.COLOR_BGR2GRAY)
 
     #Draw Gaussian Blur
     def gaussian_blur(self):
@@ -53,6 +53,25 @@ class Processing:
 
         cv2.imwrite('result.jpg',self.image_data)
         Image.show(self.image_data)
+
+    # Change every pixel (Blue, Green, Red, Yellow, Light Blue) to white.
+    def change_background_colors(self,image):
+        n = 2
+        indices = np.arange(0,256)
+        divider = np.linspace(0,255,n+1)[1]
+        quantiz = np.int0(np.linspace(0,255,n))
+        color_levels = np.clip(np.int0(indices/divider), 0, n-1)
+        palette = quantiz[color_levels]
+        image_palette = palette[image]
+        image_palette = cv2.convertScaleAbs(image_palette)
+        #RGB
+        image_palette[np.where((image_palette == [0,0,255]).all(axis = 2))] = [255,255,255]#Blue
+        image_palette[np.where((image_palette == [0,255,0]).all(axis = 2))] = [255,255,255]#Green
+        image_palette[np.where((image_palette == [255,0,0]).all(axis = 2))] = [255,255,255]#Red
+        image_palette[np.where((image_palette == [0,255,255]).all(axis = 2))] = [255,255,255]#Light Blue
+        image_palette[np.where((image_palette == [255,255,0]).all(axis = 2))] = [255,255,255]#Yellow
+        image_palette[np.where((image_palette == [255,0,255]).all(axis = 2))] = [255,255,255]#Yellow
+        return image_palette
 
     # Draw Circles in the image
     def draw_circles(self, image, contours):
