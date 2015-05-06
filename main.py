@@ -1,7 +1,7 @@
 from image import Image
 from processing import Processing
 
-images = ["images/8.jpg","images/17.jpg", "images/18.jpg", "images/12.jpg"]
+images = ["images/8.jpg","images/17.jpg", "images/18.jpg"]
 
 def process_images():
 	for img in images:
